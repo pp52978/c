@@ -1,8 +1,17 @@
 #include<stdio.h>
-#define a 5
+
 int main(){
-    int b[]={1,2};
+
+    int a;
+    scanf("%d",&a);
+    for(int i=1;i<=100;i++)
+    {
+        for(int i=3;i<=4;i++)
+        {
+            printf("%d\n",i);
+        }
+
+    }
 
 
-    printf("%d\n",b);
     }
