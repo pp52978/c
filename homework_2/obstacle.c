@@ -1,45 +1,135 @@
 #include<stdio.h>
 #include<math.h>
-int ans [1000000]={0};
-
 int main()
 {
-    int xa,ya,xb,yb,xc,yc;
-    scanf("%d%d%d%d%d%d",&xa,&ya,&xb,&yb,&xc,&yc);
+    long long xa,ya,xb,yb,xc,yc;
+    scanf("%lld%lld%lld%lld%lld%lld",&xa,&ya,&xb,&yb,&xc,&yc);
     int x[4]={0,0,-1,1};
     int y[4]={1,-1,0,0};
-    while(xa!=xb||ya!=yb)
+    int bz;
+    long long d=abs(xa-xb)+abs(ya-yb);
+    long long ans;
+    if(((xa==xb)&&(xb==xc)&&((ya-yc)*(yb-yc)<0))||((ya==yb)&&(yb==yc)&&((xa-xc)*(xb-xc)<0)))
     {
-        ans[0]++;
-        int bz;
-        int dis=10000000;
-        for(int i=0;i<=3;i++)
+        ans = d+2;
+        printf("%d\n",ans);
+        if(xa==xb)
         {
-            if(((xa+x[i]!=xc)||(ya+y[i]!=yc))&&(abs(xb-xa-x[i])+abs(yb-ya-y[i])<dis))
+            if(yb>ya)
             {
-                dis=abs(xb-xa-x[i])+abs(yb-ya-y[i]);
-                bz=i;
+                printf("R");
+                for(int i=1;i<=yb-ya;i++)
+                {
+                    printf("U");
+                }
+                printf("L");
             }
-           
+            else
+            {
+                printf("R");
+                for(int i=1;i<=ya-yb;i++)
+                {
+                    printf("D");
+                }
+                printf("L");
+            }
         }
-        xa+=x[bz];
-        ya+=y[bz];
-        ans[ans[0]]=bz;
+        else
+        {
+            if(xb>xa)
+            {
+                printf("U");
+                for(int i=1;i<=xb-xa;i++)
+                {
+                    printf("R");
+                }
+                printf("D");
+            }
+            else
+            {
+                printf("U");
+                for(int i=1;i<=xa-xb;i++)
+                {
+                    printf("L");
+                }
+                printf("D");
+            }
+        }
+ 
 
     }
-    printf("%d\n",ans[0]);
-    for(int i=1;i<=ans[0];i++)
-    {
-        if(ans[i]==0)
-        printf("U");
-        else if(ans[i]==1)
-        printf("D");
-        else if(ans[i]==2)
-        printf("L");
-        else if(ans[i]==3)
-        printf("R");
-        
+    
+    else{
+        ans = d;
+        printf("%d\n",ans);
+        if((xa==xc)||(yb==yc))
+        {
+            if(xb>=xa)
+            {
+                for(int i=1;i<=xb-xa;i++)
+                {
+                    printf("R");
+                }
+            }
+            else
+            {
+                
+                for(int i=1;i<=xa-xb;i++)
+                {
+                    printf("L");
+                }
+            }
+            if(yb>=ya)
+            {
+                for(int i=1;i<=yb-ya;i++)
+                {
+                    printf("U");
+                }
+            }
+            else
+            {
+                 for(int i=1;i<=ya-yb;i++)
+                {
+                    printf("D");
+                }
+            }
+        }
+        else{
+             if(yb>=ya)
+            {
+                for(int i=1;i<=yb-ya;i++)
+                {
+                    printf("U");
+                }
+            }
+            else
+            {
+                 for(int i=1;i<=ya-yb;i++)
+                {
+                    printf("D");
+                }
+            }
+            if(xb>=xa)
+            {
+                for(int i=1;i<=xb-xa;i++)
+                {
+                    printf("R");
+                }
+            }
+            else
+            {
+                
+                for(int i=1;i<=xa-xb;i++)
+                {
+                    printf("L");
+                }
+            }
+
+
+        }
     }
+
+    
     return 0;
     
 
