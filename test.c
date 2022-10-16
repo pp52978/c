@@ -1,28 +1,33 @@
 #include<stdio.h>
-int numbers[1000005]={0};
+#include<math.h>
 int main(){
-    int n;
-    scanf("%d",&n);
-
-    numbers[0]=n;
-    for(int i=1;i<=10000005;i++)
-    {   
-        if(numbers[i-1]%2==0){numbers[i]=numbers[i-1]/2;
-            
-        }
-        else{
-            numbers[i]=3*numbers[i-1]+1;
-        }
-        if(numbers[i]=1){break;}
-    }
-    for(int i=1;i<=1000005;i++)
+    int len;
+    scanf("%d",&len);
+    char aa[40];
+    //int bb[40]={0};
+    for(int i=1;i<=len;i++)
     {
-        int max=numbers[0];
-        if(numbers[i]>numbers[0]){
-    
-            max=numbers[i];printf("%d",max);
-        }
+       
+      scanf("%c",&aa[i]);
+      printf("%d",i);
+   }
+       /* for(int i=0;i<=len-1;i++)
+    {if(aa[i]==65){aa[i]=10;}
+     if(aa[i]==66){aa[i]=11;}
+     if(aa[i]==67){aa[i]=12;}
+     if(aa[i]==68){aa[i]=13;}
+     if(aa[i]==69){aa[i]=14;}
+     if(aa[i]==70){aa[i]=15;}}*/
+    // printf("%c",aa[1]); 
+    /*for(int i=0;i<=len-1;i++)
+    {
+        if(0<=aa[i]<=15){aa[i]=aa[i]*pow(N,i);}
+        else{aa[35]=1;}
+    } 
+    for (int i=1;i<=len-1;i++){
+        aa[i]=aa[i]+aa[i-1];
     }
-    
+    if(aa[35]=1){printf("Error");}
+    else {printf("%d",aa[len-1]);}*/
     return 0;
 }
