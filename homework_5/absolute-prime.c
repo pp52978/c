@@ -1,57 +1,42 @@
 #include<stdio.h>
-int c[1005][1005];
-void put1(int x,int k[][1005],int len);
+#include<math.h>
+int Reverse(int a);
+int Check(int b);
 int main()
 {
     int n;
     scanf("%d",&n);
-    c[1][n/2+1]=1;
-    c[0][0]=1;
-    c[0][1]=n/2+1;
-    for(int i=2;i<=n*n;i++)
+
+    int ans=0;
+    for(int i=2;i<=n;i++)
     {
-        put1(i,c,n);
-    }
-    for(int i=1;i<=n;i++)
-    {
-        for(int j=1;j<=n;j++)
+        if ((Check(i))&&(Check(Reverse(i))))
         {
-            printf("%d ",c[i][j]);
+            ans++;
         }
-        printf("\n");
-    }
-    return 0;
-}
-void put1(int x,int k[][1005],int len)
-{
-    int tmp1,tmp2;
-    if(k[0][0]==1)
-    {
-        tmp1=len;
-    }
-    else
-    tmp1=k[0][0]-1;
-    if(k[0][1]==len)
-    {
-        tmp2=1;
-    }
-    else
-    tmp2=k[0][1]+1;
-    if(k[tmp1][tmp2]!=0)
-    {
-        if(k[0][0]+1==len+1)
-        {
-            k[0][0]=1;
-        }
-        else
-        k[0][0]++;
         
     }
-    else
+    printf("%d",ans);
+    return 0;
+}
+int Reverse(int a)
+{
+    int k=0;
+    while(a!=0)
     {
-        k[0][0]=tmp1;
-        k[0][1]=tmp2;
+        k=k*10+a%10;
+        a=a/10;
     }
-    k[k[0][0]][k[0][1]]=x;
-
+    return k;
+}
+int Check(int b)
+{
+    int flag = 1; 
+    for (int i = 2; i*i<=b; i++) {
+    if (b % i == 0) {
+        flag = 0;
+        break;
+        }
+    }
+    return flag;
 }
