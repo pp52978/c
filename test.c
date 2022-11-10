@@ -6,6 +6,6 @@ int main(){
     double k=1,v=2;
     
     double i=pow(-3,-1.5);
-    printf("%lf",i);
+    printf("\\");
     return 0;
 }
