@@ -1,11 +1,8 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
-
+#include<stdio.h>
+#include<string.h>
 int main(){
-    double k=1,v=2;
-    
-    double i=pow(-3,-1.5);
-    printf("\\");
+    int a=-232;
+    unsigned int k=a;
+    printf("%d",k);
     return 0;
 }
