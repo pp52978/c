@@ -4,8 +4,9 @@ const double d=1e-4;
 int p;
 int c[23];
 double f1(double x,int n);
-double S1(double x,double y,int n);
 double Solve(double x,double y,int n,double s);
+double S1(double x,double y,int n);
+
 int main()
 {
     int n;
