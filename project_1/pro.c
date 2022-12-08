@@ -11,7 +11,7 @@ typedef struct{
         double fVal;
     } val;
 } Token;
-Token tokens[2000];
+Token tokens[2000];//前面是minus后面就是
 typedef struct {
     enum {
         INT,
@@ -37,7 +37,6 @@ typedef struct{
 }bian;//注意先检查有没有已经存在的变量
 bian Reg[130];
 int pt_reg=0;
-
 int pt_token = 0;
 int chk_error = 0;
 void Ma(int left, int right);
@@ -50,10 +49,12 @@ int check_parent(int l,int r);
 Value Super_yst(Value a,Value b,char c);
 void Print_ans(Value a);
 Value Yst_pxy(int l, int r);
+int check_equal(int l,int r);
+int find_1(int l,int r);
 int main()
 {
-       // freopen("tt.in","r",stdin);
-       // freopen("tt.out","w",stdout);
+        freopen("tt.in","r",stdin);
+        freopen("tt.out","w",stdout);
         Wrong.type=ERROR;
     while(gets(s)!=NULL)
     {
@@ -64,7 +65,7 @@ int main()
         Upd();
         if(chk_error==1)
         {
-            printf("Error");
+            printf("Error\n");
             continue;
         }
         ans = Yst_pxy(0,pt_token-1);//后期改为Yst_Pxy()
@@ -157,7 +158,14 @@ void Ma(int left, int right)
             tokens[pt_token].type=Vari;
             for(int k=0;k<len;k++)
             {
+                if(k==0)
                 tokens[pt_token].str[k]=s[left+k];
+                else if(((s[left+k]>=65)&&(s[left+k]<=90))||((s[left+k]>=97)&&(s[left+k]<=122))||(s[left+k]=='_')||((s[left+k]>=48)&&(s[left+k]<=57)))
+                tokens[pt_token].str[k]=s[left+k];
+                else {
+                    chk_error=1;
+                    return;
+                }
             }
             tokens[pt_token].str[len]='\0';
             pt_token++;
@@ -292,7 +300,7 @@ int FindOp(int l,int r)
 }
 int check_parent(int l,int r){
     int top = 0;
-    for(int i=0;i<pt_token;i++)
+    for(int i=l;i<=r;i++)
     {
         if(tokens[i].type==Operator)
         {
@@ -474,9 +482,50 @@ Value Yst(int l,int r)
     }
 }
 Value Yst_pxy(int l, int r) {
-    if(check_equal()==1)
+    if(check_equal(l,r)==1)
     {
-
+        int weizhi=find_1(l,r);
+        if(weizhi==l||weizhi==r)
+        return Wrong;
+        if(tokens[weizhi-1].type!=Vari||((weizhi-2)>=l&&(!(tokens[weizhi-2].type==Operator&&tokens[weizhi-2].str[0]=='='))))
+        return Wrong;
+        Value tmpv;
+        tmpv=Yst_pxy(weizhi+1,r);
+        int chkk=0;
+        for(int i=0;i<pt_reg;i++)
+        {
+            if(strcmp(tokens[weizhi-1].str,Reg[i].name)==0)
+            {
+                chkk=1;
+                if(tmpv.type==FLOAT)
+                {
+                    Reg[i].type=fudian;
+                    Reg[i].val.fval=tmpv.val.fVal;
+                }
+                else if(tmpv.type==INT)
+                {
+                    Reg[i].type=zheng;
+                    Reg[i].val.iVal=tmpv.val.iVal;
+                }
+                break;
+            }
+        }
+        if(chkk==0)
+        {
+            strcpy(Reg[pt_reg].name,tokens[weizhi-1].str);
+            if(tmpv.type==FLOAT)
+                {
+                    Reg[pt_reg].type=fudian;
+                    Reg[pt_reg].val.fval=tmpv.val.fVal;
+                }
+            else if(tmpv.type==INT)
+                {
+                    Reg[pt_reg].type=zheng;
+                    Reg[pt_reg].val.iVal=tmpv.val.iVal;
+                }   
+            pt_reg++;
+        }
+        return tmpv;
     }
     else{
         return Yst(l,r);
@@ -492,5 +541,24 @@ void Print_ans(Value a){
     }
     else if(a.type==FLOAT){
         printf("%.6lf\n",a.val.fVal);
+    }
+}
+int check_equal(int l,int r){
+    for(int i=l;i<=r;i++)
+    {
+        if(tokens[i].type==Operator&&tokens[i].str[0]=='=')
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+int find_1(int l,int r){
+    for(int i=l;i<r;i++)
+    {
+        if(tokens[i].type==Operator&&tokens[i].str[0]=='=')
+        {
+            return i;
+        }
     }
 }

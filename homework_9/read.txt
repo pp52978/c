@@ -1,2 +1,2 @@
 hvVlfnrt:o:
-mount -k -t
+mount -t -k

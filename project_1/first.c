@@ -4,14 +4,14 @@
 #include<stdlib.h>
 char s[1300];
 typedef struct{
-    enum {Int,Float,Operator,Vari}type;
+    enum {Int,Float,Operator,Vari,Minus}type;
     char str[32];
     union {
         int iVal;
         double fVal;
     } val;
 } Token;
-Token tokens[2000];
+Token tokens[2000];//前面是minus后面就是
 typedef struct {
     enum {
         INT,
@@ -25,6 +25,18 @@ typedef struct {
 } Value;
 Value ans;
 Value Wrong;
+typedef struct{
+    char name[32];
+    enum{
+        zheng,fudian
+    }type;
+    union{
+        int iVal;
+        double fval;
+    }val;
+}bian;//注意先检查有没有已经存在的变量
+bian Reg[130];
+int pt_reg=0;
 int pt_token = 0;
 int chk_error = 0;
 void Ma(int left, int right);
@@ -35,24 +47,30 @@ int FindPri(int x);
 void Upd(void);
 int check_parent(int l,int r);
 Value Super_yst(Value a,Value b,char c);
+void Print_ans(Value a);
+Value Yst_pxy(int l, int r);
+int check_equal(int l,int r);
+int find_1(int l,int r);
 int main()
 {
-    freopen("tt.in","r",stdin);
-    freopen("tt.out","w",stdout);
+        freopen("tt.in","r",stdin);
+        freopen("tt.out","w",stdout);
+        Wrong.type=ERROR;
     while(gets(s)!=NULL)
     {
-        Wrong.type=Value::ERROR;
+
         chk_error=0;
         pt_token = 0;
         Make_token(s);
         Upd();
         if(chk_error==1)
         {
-            printf("Error");
+            printf("Error\n");
             continue;
         }
-        ans = Yst(0,pt_token-1);//后期改为Yst_Pxy()
-        printf("%d\n",ans.val.iVal);
+        ans = Yst_pxy(0,pt_token-1);//后期改为Yst_Pxy()
+        Print_ans(ans);
+
     }
     return 0;
 }
@@ -60,17 +78,51 @@ void Ma(int left, int right)
 {
     int len = right -left +1;
     if(len==1){
-        if(s[left]=='+'||s[left]=='-'||s[left]=='*'||s[left]=='/'||s[left]=='('||s[left]==')'||s[left]=='=')
+        if(s[left]=='+'||s[left]=='*'||s[left]=='/'||s[left]=='('||s[left]==')'||s[left]=='=')
         {
-            tokens[pt_token].type=Token::Operator;
+            tokens[pt_token].type=Operator;
             tokens[pt_token].str[0]=s[left];
             tokens[pt_token].str[1]='\0';
             pt_token ++;
             return;
         }
+        else if(s[left]=='-')
+        {
+            if(left==0)
+            {
+                tokens[pt_token].type=Minus;
+                tokens[pt_token].str[0]=s[left];
+                tokens[pt_token].str[1]='\0';
+                pt_token ++;
+                return;
+            }
+            else if(tokens[pt_token-1].type==Minus)
+            {
+                tokens[pt_token].type=Minus;
+                tokens[pt_token].str[0]=s[left];
+                tokens[pt_token].str[1]='\0';
+                pt_token ++;
+                return;
+            }
+            else if(tokens[pt_token-1].type==Operator&&(tokens[pt_token-1].str[0]=='+'||tokens[pt_token-1].str[0]=='-'||tokens[pt_token-1].str[0]=='*'||tokens[pt_token-1].str[0]=='/'||tokens[pt_token-1].str[0]=='='||tokens[pt_token-1].str[0]=='('))
+            {
+                tokens[pt_token].type=Minus;
+                tokens[pt_token].str[0]=s[left];
+                tokens[pt_token].str[1]='\0';
+                pt_token ++;
+                return;
+            }
+            else{
+                tokens[pt_token].type=Operator;
+                tokens[pt_token].str[0]=s[left];
+                tokens[pt_token].str[1]='\0';
+                pt_token ++;
+                return;
+            }
+        }
         else if((s[left]>=48)&&(s[left]<=57))
         {
-            tokens[pt_token].type=Token::Int;
+            tokens[pt_token].type=Int;
             tokens[pt_token].str[0]=s[left];
             tokens[pt_token].str[1]='\0';
             pt_token++;
@@ -79,7 +131,7 @@ void Ma(int left, int right)
         else if(((s[left]>=65)&&(s[left]<=90))||((s[left]>=97)&&(s[left]<=122))||(s[left]=='_'))
         {
             
-            tokens[pt_token].type=Token::Vari;
+            tokens[pt_token].type=Vari;
             tokens[pt_token].str[0]=s[left];
             tokens[pt_token].str[1]='\0';
             pt_token++;
@@ -93,7 +145,7 @@ void Ma(int left, int right)
     }
     else if(len !=1)
     {
-        if((s[left]>=49)&&(s[left]<=57))//第一位是数，且非0
+        if((s[left]>=49)&&(s[left]<=57)||(s[left]==48&&s[left+1]=='.'))//第一位是数，且非0
         {
             int cnt = 0;//'.'的次数
             for(int i=1;i<=len-1;i++)
@@ -122,9 +174,9 @@ void Ma(int left, int right)
             else
             {
                 if(cnt==0)
-                tokens[pt_token].type=Token::Int;
+                tokens[pt_token].type=Int;
                 else if(cnt==1)
-                tokens[pt_token].type=Token::Float;
+                tokens[pt_token].type=Float;
                 for(int k=0;k<len;k++)
                 {
                     tokens[pt_token].str[k]=s[left+k];
@@ -137,10 +189,17 @@ void Ma(int left, int right)
         }
         else if(((s[left]>=65)&&(s[left]<=90))||((s[left]>=97)&&(s[left]<=122))||(s[left]=='_'))
         {
-            tokens[pt_token].type=Token::Vari;
+            tokens[pt_token].type=Vari;
             for(int k=0;k<len;k++)
             {
+                if(k==0)
                 tokens[pt_token].str[k]=s[left+k];
+                else if(((s[left+k]>=65)&&(s[left+k]<=90))||((s[left+k]>=97)&&(s[left+k]<=122))||(s[left+k]=='_')||((s[left+k]>=48)&&(s[left+k]<=57)))
+                tokens[pt_token].str[k]=s[left+k];
+                else {
+                    chk_error=1;
+                    return;
+                }
             }
             tokens[pt_token].str[len]='\0';
             pt_token++;
@@ -159,7 +218,7 @@ void Upd(void){
     {
         tokens[i].val.iVal=0;
         tokens[i].val.fVal=0;
-        if(tokens[i].type==Token::Int)
+        if(tokens[i].type==Int)
         {
             int len = strlen(tokens[i].str);
             for(int k=0;k<len;k++)
@@ -167,7 +226,7 @@ void Upd(void){
                 tokens[i].val.iVal+=(tokens[i].str[k]-48)*pow(10,len-1-k);
             }
         }
-        else if(tokens[i].type==Token::Float)
+        else if(tokens[i].type==Float)
         {
             int len = strlen(tokens[i].str);
             int pos;
@@ -231,7 +290,7 @@ int FindOp(int l,int r)
     int access=0;
     for(int i=l;i<=r;i++)
     {
-        if(tokens[i].type!=Token::Operator)
+        if(tokens[i].type!=Operator)
         continue;
         else{
             if(access!=0)
@@ -275,9 +334,9 @@ int FindOp(int l,int r)
 }
 int check_parent(int l,int r){
     int top = 0;
-    for(int i=0;i<pt_token;i++)
+    for(int i=l;i<=r;i++)
     {
-        if(tokens[i].type==Token::Operator)
+        if(tokens[i].type==Operator)
         {
             if(tokens[i].str[0]=='(')
             top++;
@@ -298,7 +357,7 @@ int check_parent(int l,int r){
         return 0;
     }
     else{
-        if(tokens[l].type==Token::Operator&&tokens[r].type==Token::Operator&&tokens[l].str[0]=='('&&tokens[r].str[0]==')')
+        if(tokens[l].type==Operator&&tokens[r].type==Operator&&tokens[l].str[0]=='('&&tokens[r].str[0]==')')
         {
             return 1;
         }
@@ -311,18 +370,18 @@ int check_parent(int l,int r){
 }
 Value Super_yst(Value a,Value b,char c){
     Value anss;
-    if(a.type==Value::ERROR||b.type==Value::ERROR)
+    if(a.type==ERROR||b.type==ERROR)
     {
         return Wrong;
     }
     else {
         int ia,ib;
         double fa,fb;
-        if(a.type==Value::INT&&b.type==Value::INT)
+        if(a.type==INT&&b.type==INT)
         {
             ia=a.val.iVal;
             ib=b.val.iVal;
-            anss.type=Value::INT;
+            anss.type=INT;
             if(c=='+')
             {
                 anss.val.iVal=ia+ib;
@@ -345,15 +404,15 @@ Value Super_yst(Value a,Value b,char c){
             }
         }
         else{
-            if(a.type==Value::INT)
+            if(a.type==INT)
             fa=a.val.iVal;
             else
             fa=a.val.fVal;
-            if(b.type==Value::INT)
+            if(b.type==INT)
             fb=b.val.iVal;
             else
             fb=b.val.fVal;
-            anss.type=Value::FLOAT;
+            anss.type=FLOAT;
             if(c=='+')
             {
                 anss.val.fVal=fa+fb;
@@ -377,6 +436,7 @@ Value Super_yst(Value a,Value b,char c){
         }       
     }
 }
+
 Value Yst(int l,int r)
 {
 
@@ -387,23 +447,47 @@ Value Yst(int l,int r)
     else if(l==r)
     {
         Value para;
-        if(tokens[l].type==Token::Int)
+        if(tokens[l].type==Int)
         {
-            para.type=Value::INT;
+            para.type=INT;
             para.val.iVal=tokens[l].val.iVal;
         }
-        else if(tokens[l].type==Token::Float)
+        else if(tokens[l].type==Float)
         {
-            para.type=Value::FLOAT;
+            para.type=FLOAT;
             para.val.fVal=tokens[l].val.fVal;
         }
-        else if (tokens[l].type==Token::Operator)
+        else if (tokens[l].type==Operator)
         {
-            para.type=Value::ERROR;
+            para.type=ERROR;
         }
         
-        //else if(tokens[l].type==Vari)
-
+        else if(tokens[l].type==Vari)
+        {
+            int check = 0;
+            for(int k=0;k<pt_reg;k++)
+            {
+                if(strcmp(tokens[l].str,Reg[k].name)==0)
+                {
+                    check=1;
+                    if(Reg[k].type==zheng)
+                    {
+                        para.type=INT;
+                        para.val.iVal=Reg[k].val.iVal;
+                    }
+                    else if(Reg[k].type==fudian)
+                    {
+                        para.type=FLOAT;
+                        para.val.fVal=Reg[k].val.fval;
+                    }
+                    break;
+                }
+            }
+            if(check==0)
+            {
+                para.type=ERROR;
+            }
+        }
         return para;
     }
     else if(check_parent(l,r)==0)
@@ -422,14 +506,108 @@ Value Yst(int l,int r)
         int op = FindOp(l,r);//运算四则
         if(op==-1)
         {
+            if(tokens[l].type==Minus)
+            {
+                Value tpp=Yst(l+1,r);
+                if(tpp.type==INT)
+                {
+                    tpp.val.iVal*=(-1);
+                }
+                else if (tpp.type==FLOAT)
+                {
+                    tpp.val.fVal*=(-1.0);
+                }
+                return tpp;
+            }
+            else{
             chk_error=1;
             return Wrong;
+            }
         }
         Value val1 = Yst(l, op - 1);
         Value val2 = Yst(op + 1, r);
         Value ans1= Super_yst(val1,val2,tokens[op].str[0]);
         return ans1;
     }
-
-
+}
+Value Yst_pxy(int l, int r) {
+    if(check_equal(l,r)==1)
+    {
+        int weizhi=find_1(l,r);
+        if(weizhi==l||weizhi==r)
+        return Wrong;
+        if(tokens[weizhi-1].type!=Vari||((weizhi-2)>=l&&(!(tokens[weizhi-2].type==Operator&&tokens[weizhi-2].str[0]=='='))))
+        return Wrong;
+        Value tmpv;
+        tmpv=Yst_pxy(weizhi+1,r);
+        int chkk=0;
+        for(int i=0;i<pt_reg;i++)
+        {
+            if(strcmp(tokens[weizhi-1].str,Reg[i].name)==0)
+            {
+                chkk=1;
+                if(tmpv.type==FLOAT)
+                {
+                    Reg[i].type=fudian;
+                    Reg[i].val.fval=tmpv.val.fVal;
+                }
+                else if(tmpv.type==INT)
+                {
+                    Reg[i].type=zheng;
+                    Reg[i].val.iVal=tmpv.val.iVal;
+                }
+                break;
+            }
+        }
+        if(chkk==0)
+        {
+            strcpy(Reg[pt_reg].name,tokens[weizhi-1].str);
+            if(tmpv.type==FLOAT)
+                {
+                    Reg[pt_reg].type=fudian;
+                    Reg[pt_reg].val.fval=tmpv.val.fVal;
+                }
+            else if(tmpv.type==INT)
+                {
+                    Reg[pt_reg].type=zheng;
+                    Reg[pt_reg].val.iVal=tmpv.val.iVal;
+                }   
+            pt_reg++;
+        }
+        return tmpv;
+    }
+    else{
+        return Yst(l,r);
+    }
+}
+void Print_ans(Value a){
+    if(a.type==ERROR)
+    {
+        printf("Error\n");
+    }
+    else if(a.type==INT){
+        printf("%d\n",a.val.iVal);
+    }
+    else if(a.type==FLOAT){
+        printf("%.6lf\n",a.val.fVal);
+    }
+}
+int check_equal(int l,int r){
+    for(int i=l;i<=r;i++)
+    {
+        if(tokens[i].type==Operator&&tokens[i].str[0]=='=')
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+int find_1(int l,int r){
+    for(int i=l;i<r;i++)
+    {
+        if(tokens[i].type==Operator&&tokens[i].str[0]=='=')
+        {
+            return i;
+        }
+    }
 }
