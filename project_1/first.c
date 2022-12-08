@@ -1,3 +1,6 @@
+/*
+    谨以这600余行的代码纪念yst曾给我带来的美好
+*/
 #include<stdio.h>
 #include<string.h>
 #include<math.h>
@@ -53,8 +56,8 @@ int check_equal(int l,int r);
 int find_1(int l,int r);
 int main()
 {
-        freopen("tt.in","r",stdin);
-        freopen("tt.out","w",stdout);
+        //freopen("tt.in","r",stdin);
+        //freopen("tt.out","w",stdout);
         Wrong.type=ERROR;
     while(gets(s)!=NULL)
     {
@@ -442,7 +445,7 @@ Value Yst(int l,int r)
 
     if(l>r||l<0||r>=pt_token)
     {
-        return Wrong;//??存疑
+        return Wrong;
     }
     else if(l==r)
     {
@@ -493,7 +496,7 @@ Value Yst(int l,int r)
     else if(check_parent(l,r)==0)
     {
         chk_error=1;
-        return Wrong;//??
+        return Wrong;
     }
     else if(check_parent(l,r)==1&&check_parent(l+1,r-1)!=0)
     {
@@ -503,7 +506,7 @@ Value Yst(int l,int r)
     }
     else
     {
-        int op = FindOp(l,r);//运算四则
+        int op = FindOp(l,r);
         if(op==-1)
         {
             if(tokens[l].type==Minus)
