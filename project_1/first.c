@@ -457,7 +457,7 @@ Value Yst(int l,int r)
             para.type=FLOAT;
             para.val.fVal=tokens[l].val.fVal;
         }
-        else if (tokens[l].type==Operator)
+        else if (tokens[l].type==Operator||tokens[l].type==Minus)
         {
             para.type=ERROR;
         }
